@@ -1,4 +1,4 @@
-# ipq
+# IP Query
 
 A CLI tool for gathering IP and domain name information.
 
