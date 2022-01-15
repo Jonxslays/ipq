@@ -1,0 +1,74 @@
+[tool.poetry]
+name = "ipq"
+version = "0.1.0"
+description = "A CLI tool for gathering IP and domain name information."
+homepage = "https://github.com/Jonxslays/ipq"
+repository = "https://github.com/Jonxslays/ipq"
+authors = ["Jonxslays"]
+readme = "README.md"
+license = "MIT"
+packages = [{include = "ipq"}]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    # "Development Status :: 2 - Pre-Alpha",
+    # "Development Status :: 3 - Alpha",
+    # "Development Status :: 4 - Beta",
+    # "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Typing :: Typed",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.6.2,<3.12"
+aiohttp = "^3.8.1"
+click = "^8.0.3"
+
+[tool.poetry.dev-dependencies]
+len8 = "^0.7.0"
+mypy = "^0.931"
+pyright = "^0.0.13"
+black = "^21.12b0"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+nox = "^2022.1.7"
+toml = "^0.10.2"
+
+[tool.black]
+line-length = 99
+
+[tool.isort]
+profile = "black"
+
+[tool.len8]
+include = ["ipq", "tests", "noxfile.py"]
+code-length = 99
+docs-length = 72
+strict = true
+
+[tool.mypy]
+strict = true
+
+[tool.pyright]
+include = ["ipq"]
+ignore = ["tests"]
+typeCheckingMode = "strict"
+reportImportCycles = false
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
