@@ -17,3 +17,13 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+"""A CLI tool for gathering IP and domain name information."""
+
+__packagename__ = "ipq"
+__version__ = "0.1.0"
+__author__ = "Jonxslays"
+__copyright__ = "2022-present Jonxslays"
+__description__ = "A CLI tool for gathering IP and domain name information."
+__url__ = "https://github.com/Jonxslays/ipq"
+__repository__ = __url__
+__license__ = "MIT"
