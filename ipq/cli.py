@@ -17,19 +17,38 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""A CLI tool for gathering IP and domain name information."""
+"""Command line argument parser."""
 
-from __future__ import annotations
+import asyncio
+import re
 
-__all__ = ["cli"]
+import click
 
-__packagename__ = "ipq"
-__version__ = "0.1.0"
-__author__ = "Jonxslays"
-__copyright__ = "2022-present Jonxslays"
-__description__ = "A CLI tool for gathering IP and domain name information."
-__url__ = "https://github.com/Jonxslays/ipq"
-__repository__ = __url__
-__license__ = "MIT"
 
-from . import cli
+DOMAIN_RGX = re.compile(r"^((?!-)[\w\d-]{1,63}(?<!-)\.)+[\w]{2,6}$")
+IP_RGX = re.compile(r"^\d+\.\d+\.\d+\.\d+$")
+
+
+class Runner:
+    __slots__ = "host"
+
+    def __init__(self, host: str) -> None:
+        self.host = host
+
+    async def execute(self) -> None:
+        if domain := re.match(DOMAIN_RGX, self.host):
+            print("its a domain", domain.string)
+            return None
+
+        if ip := re.match(IP_RGX, self.host):
+            print("its an ip", ip.string)
+            return None
+
+        print("not a real domain or ip")
+
+
+@click.command(name="ipq")
+@click.version_option()
+@click.argument("host", type=str, nargs=1)
+def invoke(host: str) -> None:
+    asyncio.run(Runner(host).execute())
