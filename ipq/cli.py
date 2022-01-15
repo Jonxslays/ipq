@@ -25,8 +25,8 @@ import re
 import click
 
 
-DOMAIN_RGX = re.compile(r"^((?!-)[\w\d-]{1,63}(?<!-)\.)+[\w]{2,6}$")
-IP_RGX = re.compile(r"^\d+\.\d+\.\d+\.\d+$")
+DOMAIN_RGX = re.compile(r"^((?!-)[\w\d-]{1,63}(?<!-)\.)+[a-zA-Z][\w]{1,5}$")
+IP_RGX = re.compile(r"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d{1,5})?$")
 
 
 class Runner:
@@ -36,12 +36,12 @@ class Runner:
         self.host = host
 
     async def execute(self) -> None:
-        if domain := re.match(DOMAIN_RGX, self.host):
-            print("its a domain", domain.string)
-            return None
-
         if ip := re.match(IP_RGX, self.host):
             print("its an ip", ip.string)
+            return None
+
+        if domain := re.match(DOMAIN_RGX, self.host):
+            print("its a domain", domain.string)
             return None
 
         print("not a real domain or ip")
