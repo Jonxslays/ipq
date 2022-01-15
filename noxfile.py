@@ -18,20 +18,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import typing as t
+from __future__ import annotations
+
 from pathlib import Path
 
 import nox
 import toml
 
 
-def get_dependencies() -> t.Dict[str, str]:
+def get_dependencies() -> dict[str, str]:
     with open("pyproject.toml") as f:
         data = toml.loads(f.read())["tool"]["poetry"]
         deps = data["dev-dependencies"]
         deps.update(data["dependencies"])
 
-    return dict((k, f"{k}{v}".replace("^", "~=")) for k, v in deps.items())
+    return dict((k.lower(), f"{k}{v}".replace("^", "~=")) for k, v in deps.items())
 
 
 DEPS = get_dependencies()
@@ -39,7 +40,7 @@ DEPS = get_dependencies()
 
 @nox.session(reuse_venv=True)
 def types(session: nox.Session) -> None:
-    session.install("-U", DEPS["pyright"], DEPS["mypy"], DEPS["aiohttp"])
+    session.install("-U", DEPS["pyright"], DEPS["mypy"], DEPS["aiohttp"], DEPS["click"])
     session.run("mypy", "ipq")
     session.run("pyright")
 
@@ -70,8 +71,8 @@ def imports(session: nox.Session) -> None:
 
 @nox.session(reuse_venv=True)
 def licensing(session: nox.Session) -> None:
-    missing: t.List[Path] = []
-    files: t.List[Path] = [
+    missing: list[Path] = []
+    files: list[Path] = [
         *Path("./ipq").rglob("*.py"),
         *Path("./tests").glob("*.py"),
         *Path(".").glob("*.py"),

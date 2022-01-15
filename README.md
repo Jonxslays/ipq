@@ -8,7 +8,7 @@ A CLI tool for gathering IP and domain name information.
 
 ## Requirements
 
-ipq requires Python 3.6.1 or greater.
+ipq requires Python 3.7 or greater.
 
 ## Installation
 
