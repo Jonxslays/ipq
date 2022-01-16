@@ -73,16 +73,29 @@ class WhoisData:
         if isinstance(value, list):
             return value or []
 
-        return value or "Not Found"
+        elif isinstance(value, str):
+            return value or "Not Found"
+
+        # We should *hopefully* never get here
+        raise RuntimeError("Whois did not return valid data.")
 
     def _black_magic(self, data: str) -> WhoisData:
-        self.domain = self._maybe(self._str_rgx("domain name", data))
-        self.registrar = self._maybe(self._str_rgx("registrar", data))
-        self.created = self._maybe(self._str_rgx("creation date", data))
-        self.updated = self._maybe(self._str_rgx("updated date", data))
-        self.status = self._maybe(self._str_rgx("domain status", data))
-        self.status = self._maybe(self._str_rgx("registry expiry date", data))
-        self.nameservers = self._maybe(self._ns_rgx("name server", data))
+        attr_map: dict[str, t.Any] = {
+            "domain": "domain name",
+            "registrar": "registrar",
+            "created": "creation date",
+            "updated": "updated date",
+            "status": "domain status",
+            "expires": "registry expiry date",
+            "nameservers": "name server",
+        }
+
+        for k, v in attr_map.items():
+            if v == "name server":
+                setattr(self, k, self._maybe(self._ns_rgx(v, data)))
+
+            else:
+                setattr(self, k, self._maybe(self._str_rgx(v, data)))
 
         return self
 
