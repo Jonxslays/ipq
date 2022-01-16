@@ -33,7 +33,7 @@ from ipq import errors
 T = t.TypeVar("T", str, list[str])
 
 
-@dataclass
+@dataclass(slots=True)
 class WhoisData:
     """Represents a domains whois info."""
 
@@ -70,7 +70,7 @@ class WhoisData:
         rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
 
         if ns := rgx.findall(data):
-            return ns
+            return list(set(ns))
 
         return None
 
@@ -84,6 +84,20 @@ class WhoisData:
 
         # We should *hopefully* never get here
         raise errors.InvalidWhoisData("Whois did not return valid data.")
+
+    def pretty(self) -> str:
+        """Returns a pretty string representing the whois data."""
+        return (
+            "========== WHOIS ==========\n"
+            f"Domain: {self.domain}\n"
+            f"Registrar: {self.registrar}\n"
+            f"Created: {self.created}\n"
+            f"Updated: {self.updated}\n"
+            f"Expires: {self.expires}\n"
+            f"Status: {self.status}\n"
+            f"Nameservers: {', '.join(self.nameservers)}\n"
+            "===========================\n"
+        )
 
     def _black_magic(self, data: str) -> WhoisData:
         attr_map: dict[str, str] = {
@@ -106,7 +120,7 @@ class WhoisData:
         return self
 
 
-@dataclass
+@dataclass(slots=True)
 class IPData:
     """Represented information about the given IP."""
 

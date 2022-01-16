@@ -35,5 +35,6 @@ IP_RGX = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 @click.argument("host", type=str, nargs=1)
 @click.option("-w", "--whois", is_flag=True, help="Whether or not to include WHOIS data.")
 def invoke(host: str, whois: bool) -> None:
-    _w = models.WhoisData.new(host)
-    print(_w)
+    if whois:
+        _w = models.WhoisData.new(host)
+        print(_w.pretty())
