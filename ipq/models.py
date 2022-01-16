@@ -70,7 +70,7 @@ class WhoisData:
         rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
 
         if ns := rgx.findall(data):
-            return list(set(ns))
+            return [*set(ns)]
 
         return None
 
@@ -85,8 +85,7 @@ class WhoisData:
         # We should *hopefully* never get here
         raise errors.InvalidWhoisData("Whois did not return valid data.")
 
-    def pretty(self) -> str:
-        """Returns a pretty string representing the whois data."""
+    def __str__(self) -> str:
         return (
             "========== WHOIS ==========\n"
             f"Domain: {self.domain}\n"
@@ -96,7 +95,7 @@ class WhoisData:
             f"Expires: {self.expires}\n"
             f"Status: {self.status}\n"
             f"Nameservers: {', '.join(self.nameservers)}\n"
-            "===========================\n"
+            "==========================="
         )
 
     def _black_magic(self, data: str) -> WhoisData:

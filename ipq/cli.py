@@ -37,4 +37,4 @@ IP_RGX = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 def invoke(host: str, whois: bool) -> None:
     if whois:
         _w = models.WhoisData.new(host)
-        print(_w.pretty())
+        print(_w)
