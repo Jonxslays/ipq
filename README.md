@@ -8,7 +8,8 @@ A CLI tool for gathering IP and domain name information.
 
 ## Requirements
 
-ipq requires Python 3.7 or greater.
+- Python >= 3.7.
+- `whois` shell command for `-w` flag.
 
 ## Installation
 
