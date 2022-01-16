@@ -24,17 +24,25 @@ import re
 
 import click
 
-from ipq import models
+from ipq import errors, models, __packagename__, __version__
 
 DOMAIN_RGX = re.compile(r"^((?!-)[\w\d-]{1,63}(?<!-)\.)+[a-zA-Z][\w]{1,5}$")
 IP_RGX = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 
 
-@click.command(name="ipq")
-@click.version_option()
+@click.command(__packagename__)
+@click.version_option(__version__, "-v", "--version", prog_name=__packagename__)
+@click.help_option("-h", "--help")
 @click.argument("host", type=str, nargs=1)
-@click.option("-w", "--whois", is_flag=True, help="Whether or not to include WHOIS data.")
+@click.option("-w", "--whois", is_flag=True, help="Include WHOIS data in results.")
 def invoke(host: str, whois: bool) -> None:
+    """Workhorse function that creates objects and parses CLI args."""
+    dom_match = DOMAIN_RGX.match(host)
+    ip_match = IP_RGX.match(host)
+
+    if not dom_match and not ip_match:
+        raise errors.InvalidHost(f"{host!r} is not a valid domain or IP address.")
+
     if whois:
         _w = models.WhoisData.new(host)
         print(_w)

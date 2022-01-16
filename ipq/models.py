@@ -58,6 +58,7 @@ class WhoisData:
 
     @staticmethod
     def _str_rgx(q: str, data: str) -> str | None:
+        """Parses for values that can only occur once."""
         rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
 
         if buf := rgx.search(data):
@@ -67,15 +68,17 @@ class WhoisData:
 
     @staticmethod
     def _ns_rgx(q: str, data: str) -> list[str] | None:
+        """Parses for nameservers, which the can be multiple of."""
         rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
 
         if ns := rgx.findall(data):
-            return [*set(ns)]
+            return [*set(ns)] # prevents duplicate nameservers in the list
 
         return None
 
     @staticmethod
     def _maybe(value: T | None) -> T:
+        """Returns the value, or the appropriate replacement if None."""
         if isinstance(value, list):
             return value or []
 
@@ -99,6 +102,7 @@ class WhoisData:
         )
 
     def _black_magic(self, data: str) -> WhoisData:
+        """Sets all the data to the appropriate attr on this obj."""
         attr_map: dict[str, str] = {
             "domain": "domain name",
             "registrar": "registrar",
@@ -121,7 +125,7 @@ class WhoisData:
 
 @dataclass(slots=True)
 class IPData:
-    """Represented information about the given IP."""
+    """Represents information about the given IP."""
 
     ip: str
     hostname: str

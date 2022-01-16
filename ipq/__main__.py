@@ -22,7 +22,18 @@
 
 from __future__ import annotations
 
-from ipq import cli
+import sys
+
+from ipq import cli, errors
+
+
+def main() -> None:
+    """Main entry point for the program."""
+    try:
+        cli.invoke()
+    except errors.IpqError as e:
+        print(e)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    cli.invoke()
+    main()
