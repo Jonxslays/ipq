@@ -1,31 +1,34 @@
 # Copyright (c) 2022-present Jonxslays
 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """Models the various data retrieved by ipq."""
 
 from __future__ import annotations
 
 import re
+import shutil
 import subprocess
 import typing as t
 from dataclasses import dataclass, field
 
+from ipq import errors
 
 T = t.TypeVar("T", str, list[str])
 
@@ -45,6 +48,9 @@ class WhoisData:
     @classmethod
     def new(cls, domain: str) -> WhoisData:
         """Creates a new `WhoisData` object with the whois command."""
+        if not shutil.which("whois"):
+            raise errors.MissingWhois("ipq requires the `which` command, please install it.")
+
         self = cls()
         proc = subprocess.run(["whois", domain.lower()], capture_output=True)
         data = proc.stdout.decode("utf-8")
@@ -77,10 +83,10 @@ class WhoisData:
             return value or "Not Found"
 
         # We should *hopefully* never get here
-        raise RuntimeError("Whois did not return valid data.")
+        raise errors.InvalidWhoisData("Whois did not return valid data.")
 
     def _black_magic(self, data: str) -> WhoisData:
-        attr_map: dict[str, t.Any] = {
+        attr_map: dict[str, str] = {
             "domain": "domain name",
             "registrar": "registrar",
             "created": "creation date",
@@ -102,4 +108,14 @@ class WhoisData:
 
 @dataclass
 class IPData:
-    ...
+    """Represented information about the given IP."""
+
+    ip: str
+    hostname: str
+    city: str
+    region: str
+    country: str
+    loc: str
+    org: str
+    postal: str
+    timezone: str

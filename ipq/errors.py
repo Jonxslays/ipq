@@ -18,22 +18,18 @@
 # CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""Command line argument parser."""
+"""ipq error module."""
 
-import re
-
-import click
-
-from ipq import models
-
-DOMAIN_RGX = re.compile(r"^((?!-)[\w\d-]{1,63}(?<!-)\.)+[a-zA-Z][\w]{1,5}$")
-IP_RGX = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
+from __future__ import annotations
 
 
-@click.command(name="ipq")
-@click.version_option()
-@click.argument("host", type=str, nargs=1)
-@click.option("-w", "--whois", is_flag=True, help="Whether or not to include WHOIS data.")
-def invoke(host: str, whois: bool) -> None:
-    _w = models.WhoisData.new(host)
-    print(_w)
+class IpqError(Exception):
+    """Base exception all ipq errors inherit from."""
+
+
+class InvalidWhoisData(IpqError):
+    """Raised when invalid data is returned from the `whois` command."""
+
+
+class MissingWhois(IpqError):
+    """Raised when the `whois` command is not present."""
