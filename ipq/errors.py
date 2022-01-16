@@ -22,9 +22,17 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 
 class IpqError(Exception):
     """Base exception all ipq errors inherit from."""
+    def __init__(self, message: str, *args: Any, **kwargs: Any) -> None:
+        self.message = message
+        super().__init__(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f"\033[0;31mError\033[0m: {self.message}"
 
 
 class InvalidWhoisData(IpqError):
@@ -33,3 +41,11 @@ class InvalidWhoisData(IpqError):
 
 class MissingWhois(IpqError):
     """Raised when the `whois` command is not present."""
+
+
+class InvalidHost(IpqError):
+    r"""Raised when host does not match domain or IP regex.
+
+    -Domain-: `^((?!-)[\w\d-]{1,63}(?<!-)\.)+[a-zA-Z][\w]{1,5}$`
+    ---IP---: `^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$`
+    """
