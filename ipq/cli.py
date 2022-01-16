@@ -19,36 +19,19 @@
 # SOFTWARE.
 """Command line argument parser."""
 
-import asyncio
 import re
 
 import click
+
+from ipq import models
 
 
 DOMAIN_RGX = re.compile(r"^((?!-)[\w\d-]{1,63}(?<!-)\.)+[a-zA-Z][\w]{1,5}$")
 IP_RGX = re.compile(r"^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d{1,5})?$")
 
 
-class Runner:
-    __slots__ = "host"
-
-    def __init__(self, host: str) -> None:
-        self.host = host
-
-    async def execute(self) -> None:
-        if ip := re.match(IP_RGX, self.host):
-            print("its an ip", ip.string)
-            return None
-
-        if domain := re.match(DOMAIN_RGX, self.host):
-            print("its a domain", domain.string)
-            return None
-
-        print("not a real domain or ip")
-
-
 @click.command(name="ipq")
 @click.version_option()
 @click.argument("host", type=str, nargs=1)
 def invoke(host: str) -> None:
-    asyncio.run(Runner(host).execute())
+    _w = models.WhoisData.new(host)

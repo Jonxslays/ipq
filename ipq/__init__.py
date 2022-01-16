@@ -21,7 +21,7 @@
 
 from __future__ import annotations
 
-__all__ = ["cli"]
+__all__ = ["cli", "models"]
 
 __packagename__ = "ipq"
 __version__ = "0.1.0"
@@ -33,3 +33,4 @@ __repository__ = __url__
 __license__ = "MIT"
 
 from . import cli
+from . import models
