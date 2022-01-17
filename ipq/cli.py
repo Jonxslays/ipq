@@ -36,7 +36,8 @@ from ipq import __packagename__, __version__, errors, models, utils
 @click.help_option("-h", "--help")
 @click.argument("host", type=str, nargs=1)
 @click.option("-w", "--whois", is_flag=True, help="Include WHOIS data in results.")
-def invoke(host: str, whois: bool) -> None:
+@click.option("-p", "--ping", is_flag=True, help="Ping the host.")
+def invoke(host: str, whois: bool, ping: bool) -> None:
     """Quickly gather IP and domain name information."""
     targets: list[t.Type[models.IPData] | t.Type[models.WhoisData]] = [models.IPData]
     queue: Queue[str] = Queue(2)
@@ -47,6 +48,11 @@ def invoke(host: str, whois: bool) -> None:
 
     if not domain and not ip:
         raise errors.InvalidHost(f"{host!r} is not a valid domain or IP address.")
+
+    if ping:
+        raw_ping = models.PingData.new(host, 1)
+        print(raw_ping.data)
+        return None
 
     if ip and whois:
         raise errors.InvalidHost(f"You must pass a domain as the host for the '-w' flag.")

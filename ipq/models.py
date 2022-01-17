@@ -22,6 +22,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import typing as t
@@ -205,3 +206,22 @@ class IPData:
             raise errors.ShellCommandError(f"Something went wrong with 'nslookup' for {host!r}")
 
         return match.group(1)
+
+
+@dataclass(slots=True)
+class PingData:
+    """Data received from pinging the host."""
+
+    data: str = ""
+
+    @classmethod
+    def new(cls, host: str, count: int) -> PingData:
+        self = cls()
+
+        proc = subprocess.run(
+            ["ping", "-n" if os.name == "nt" else "-c", f"{count}", host.lower()],
+            capture_output=True,
+        )
+
+        self.data = proc.stdout.decode("utf-8")
+        return self

@@ -7,6 +7,7 @@ A CLI tool for gathering IP and domain name information.
 - Python >= 3.7.
 - `whois` shell command.
 - `nslookup` shell command.
+- `ping` shell command.
 
 ## Installation
 
@@ -46,11 +47,15 @@ $ ipq google.com
 # Get info on an ip
 $ ipq 8.8.8.8
 
-# Get info on a domain, and include whois info
+# Ping the host
+$ ipq -p google.com
+$ ipq --ping 8.8.8.8
+
+# Get ip and whois info on a domain
 $ ipq -w google.com
 $ ipq --whois google.com
 
-# Fails because ips do not have whois info
+# Fails: ips do not have whois info
 $ ipq -w 8.8.8.8
 ```
 
