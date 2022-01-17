@@ -22,7 +22,7 @@
 
 import click
 
-from ipq import errors, models, utils, __packagename__, __version__
+from ipq import __packagename__, __version__, errors, models, utils
 
 
 @click.command(__packagename__)

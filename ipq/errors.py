@@ -27,12 +27,13 @@ from typing import Any
 
 class IpqError(Exception):
     """Base exception all ipq errors inherit from."""
+
     def __init__(self, message: str, *args: Any, **kwargs: Any) -> None:
         self.message = message
         super().__init__(*args, **kwargs)
 
     def __str__(self) -> str:
-        return f"\033[0;31mError\033[0m: {self.message}"
+        return f"\033[1;31mError\033[0m: {self.message}"
 
 
 class ShellCommandError(IpqError):

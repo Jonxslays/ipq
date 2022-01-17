@@ -30,6 +30,11 @@ from dataclasses import dataclass, field
 from ipq import errors, utils
 
 T = t.TypeVar("T", str, list[str])
+CYAN = utils.Colors.CYAN
+STOP = utils.Colors.STOP
+GREEN = utils.Colors.GREEN
+PURPLE = utils.Colors.PURPLE
+YELLOW = utils.Colors.YELLOW
 
 
 @dataclass(slots=True)
@@ -59,7 +64,6 @@ class WhoisData:
         match = rgx.search(data)
         return match.group(1) if match else None
 
-
     @staticmethod
     def _ns_rgx(q: str, data: str) -> list[str] | None:
         """Parses for nameservers, which the can be multiple of."""
@@ -81,15 +85,15 @@ class WhoisData:
 
     def __str__(self) -> str:
         return (
-            "=========== WHOIS ===========\n"
-            f"Domain:       {self.domain}\n"
-            f"Registrar:    {self.registrar}\n"
-            f"Created:      {self.created}\n"
-            f"Updated:      {self.updated}\n"
-            f"Expires:      {self.expires}\n"
-            f"Nameservers:  {', '.join(self.nameservers)}\n"
-            f"Status:       {self.status}\n"
-            "============================="
+            f"{YELLOW}==========={STOP} {GREEN}WHOIS{STOP} {YELLOW}===========\n{STOP}"
+            f"{CYAN}Domain:       {self.domain}\n{STOP}"
+            f"{PURPLE}Registrar:    {self.registrar}\n{STOP}"
+            f"{CYAN}Created:      {self.created}\n{STOP}"
+            f"{PURPLE}Updated:      {self.updated}\n{STOP}"
+            f"{CYAN}Expires:      {self.expires}\n{STOP}"
+            f"{PURPLE}Nameservers:  {', '.join(self.nameservers)}\n{STOP}"
+            f"{CYAN}Status:       {self.status}\n{STOP}"
+            f"{YELLOW}============================={STOP}"
         )
 
     @utils.requires("whois")
@@ -151,14 +155,14 @@ class IPData:
 
     def __str__(self) -> str:
         return (
-            "========== IP INFO ==========\n"
-            f"IP:           {self.ip}\n"
-            f"Hostname:     {self.hostname}\n"
-            f"City:         {self.city}\n"
-            f"Country:      {self.country}\n"
-            f"Postal code:  {self.postal}\n"
-            f"Organization: {self.org}\n"
-            "============================="
+            f"{YELLOW}=========={STOP} {GREEN}IP INFO{STOP} {YELLOW}==========\n{STOP}"
+            f"{CYAN}IP:           {self.ip}\n{STOP}"
+            f"{PURPLE}Hostname:     {self.hostname}\n{STOP}"
+            f"{CYAN}City:         {self.city}\n{STOP}"
+            f"{PURPLE}Country:      {self.country}\n{STOP}"
+            f"{CYAN}Postal code:  {self.postal}\n{STOP}"
+            f"{PURPLE}Organization: {self.org}\n{STOP}"
+            f"{YELLOW}============================={STOP}"
         )
 
     @utils.requires("whois")
