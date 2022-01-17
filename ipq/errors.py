@@ -44,12 +44,8 @@ class InvalidWhoisData(ShellCommandError):
     """Raised when invalid data is returned from the `whois` command."""
 
 
-class MissingWhois(ShellCommandError):
-    """Raised when the `whois` command is not present."""
-
-
-class MissingNSLookup(ShellCommandError):
-    """Raised when the `nslookup` command is not present."""
+class MissingShellCommand(ShellCommandError):
+    """Raised when a necessary shell command is missing."""
 
 
 class InvalidHost(ShellCommandError):

@@ -52,7 +52,7 @@ def requires(*commands: str) -> RequiresT:
         """Decorates the function and checks for the commands."""
         for command in commands:
             if not check_availability(command):
-                raise errors.MissingWhois(
+                raise errors.MissingShellCommand(
                     f"ipq requires the {command!r} command, please install it."
                 )
 
