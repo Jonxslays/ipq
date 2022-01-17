@@ -1,0 +1,36 @@
+name: Publish release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  pypi:
+    name: Pypi release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run pre-release script
+        id: prerelease
+        run: ./scripts/pre-release.sh
+
+      - name: Build and publish
+        uses: JRubics/poetry-publish@v1.8
+        if: steps.prerelease.conclusion == 'success'
+        with:
+          pypi_token: ${{ secrets.PYPI_TOKEN }}
+          ignore_dev_requirements: "yes"
+
+  post-release:
+    name: Post release
+    needs: docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run post-release script
+        run: ./scripts/post-release.sh
