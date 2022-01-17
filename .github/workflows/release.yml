@@ -25,7 +25,6 @@ jobs:
 
   post-release:
     name: Post release
-    needs: docs
     runs-on: ubuntu-latest
 
     steps:
