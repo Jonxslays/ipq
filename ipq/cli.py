@@ -20,6 +20,12 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """Command line argument parser."""
 
+from __future__ import annotations
+
+import typing as t
+from queue import Queue
+from threading import Thread
+
 import click
 
 from ipq import __packagename__, __version__, errors, models, utils
@@ -32,6 +38,10 @@ from ipq import __packagename__, __version__, errors, models, utils
 @click.option("-w", "--whois", is_flag=True, help="Include WHOIS data in results.")
 def invoke(host: str, whois: bool) -> None:
     """Workhorse function that creates objects and parses CLI args."""
+    targets: list[t.Type[models.IPData] | t.Type[models.WhoisData]] = [models.IPData]
+    queue: Queue[str] = Queue(2)
+    threads: list[Thread] = []
+    output: list[str] = []
     domain = utils.DOMAIN_RGX.match(host)
     ip = utils.IP_RGX.match(host)
 
@@ -41,6 +51,18 @@ def invoke(host: str, whois: bool) -> None:
     if ip and whois:
         raise errors.InvalidHost(f"You must pass a domain as the host for the '-w' flag.")
 
-    ip_data = models.IPData.new(host)
-    whois_data = models.WhoisData.new(host) if whois else None
-    print("\n".join((f"{ip_data}", f"{whois_data or ''}")))
+    if whois:
+        targets.append(models.WhoisData)
+
+    for obj in targets:
+        thread = Thread(target=obj.new, args=(queue, host))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    while not queue.empty():
+        output.append(queue.get())
+
+    print("\n".join(output))

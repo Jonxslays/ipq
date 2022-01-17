@@ -26,6 +26,7 @@ import re
 import subprocess
 import typing as t
 from dataclasses import dataclass, field
+from queue import Queue
 
 from ipq import errors, utils
 
@@ -41,6 +42,7 @@ YELLOW = utils.Colors.YELLOW
 class WhoisData:
     """Represents a domains whois info."""
 
+    queue: Queue[str]
     domain: str = ""
     registrar: str = ""
     created: str = ""
@@ -50,10 +52,11 @@ class WhoisData:
     nameservers: list[str] = field(default_factory=list)
 
     @classmethod
-    def new(cls, host: str) -> WhoisData:
+    def new(cls, queue: Queue[str], host: str) -> WhoisData:
         """Creates a new `WhoisData` object with the whois command."""
-        self = cls()
+        self = cls(queue)
         self._black_magic(self._whois(host).lower())
+        self.queue.put(str(self))
 
         return self
 
@@ -98,6 +101,7 @@ class WhoisData:
 
     @utils.requires("whois")
     def _whois(self, host: str) -> str:
+        """Makes a call to the whois command."""
         proc = subprocess.run(["whois", host.lower()], capture_output=True)
         return proc.stdout.decode("utf-8")
 
@@ -125,6 +129,7 @@ class WhoisData:
 class IPData:
     """Represents information about the given IP."""
 
+    queue: Queue[str]
     ip: str = ""
     hostname: str = ""
     city: str = ""
@@ -133,8 +138,9 @@ class IPData:
     postal: str = ""
 
     @classmethod
-    def new(cls, host: str) -> IPData:
-        self = cls()
+    def new(cls, queue: Queue[str], host: str) -> IPData:
+        """Creates a new IP Data object for the given host."""
+        self = cls(queue)
 
         if utils.DOMAIN_RGX.match(host):
             self.ip = self._ns_lookup(host, utils.NSLOOKUP_IP_RGX)
@@ -151,6 +157,7 @@ class IPData:
             self.hostname = "Not Found"
 
         self._red_magic(self.ip)
+        self.queue.put(str(self))
         return self
 
     def __str__(self) -> str:
@@ -187,6 +194,7 @@ class IPData:
 
     @utils.requires("nslookup")
     def _ns_lookup(self, host: str, rgx: re.Pattern[str]) -> str:
+        """Runs the nslookup command and returns a regex match."""
         proc = subprocess.run(["nslookup", host.lower()], capture_output=True)
         data = proc.stdout.decode("utf-8")
         match = rgx.search(data)
