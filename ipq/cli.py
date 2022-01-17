@@ -37,7 +37,7 @@ from ipq import __packagename__, __version__, errors, models, utils
 @click.argument("host", type=str, nargs=1)
 @click.option("-w", "--whois", is_flag=True, help="Include WHOIS data in results.")
 def invoke(host: str, whois: bool) -> None:
-    """Workhorse function that creates objects and parses CLI args."""
+    """Quickly gather IP and domain name information."""
     targets: list[t.Type[models.IPData] | t.Type[models.WhoisData]] = [models.IPData]
     queue: Queue[str] = Queue(2)
     threads: list[Thread] = []
