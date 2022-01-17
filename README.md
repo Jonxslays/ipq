@@ -2,18 +2,28 @@
 
 A CLI tool for gathering IP and domain name information.
 
-## Disclaimer
-
-**Still in early development!**
-
 ## Requirements
 
 - Python >= 3.7.
 - `whois` shell command.
 - `nslookup` shell command.
-- Potentially `ping` shell command for future `-p` flag.
 
 ## Installation
+
+Latest stable version:
+
+```bash
+pip install ipq
+```
+
+Latest stable version with speedups:
+- Adds `aiodns` and `cchardet` dependencies.
+
+```bash
+pip install "ipq[speedups]"
+```
+
+Development version:
 
 ```bash
 pip install git+https://github.com/Jonxslays/ipq.git
