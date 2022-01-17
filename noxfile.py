@@ -41,7 +41,7 @@ DEPS = get_dependencies()
 
 @nox.session(reuse_venv=True)
 def types(session: nox.Session) -> None:
-    session.install("-U", DEPS["pyright"], DEPS["mypy"], DEPS["aiohttp"], DEPS["click"])
+    session.install("-U", DEPS["pyright"], DEPS["mypy"], DEPS["click"])
     session.run("mypy", "ipq")
     session.run("pyright")
 
