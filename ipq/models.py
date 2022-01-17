@@ -48,7 +48,7 @@ class WhoisData:
     created: str = ""
     updated: str = ""
     expires: str = ""
-    status: str = ""
+    status: list[str] = field(default_factory=list)
     nameservers: list[str] = field(default_factory=list)
 
     @classmethod
@@ -57,18 +57,17 @@ class WhoisData:
         self = cls(queue)
         self._black_magic(self._whois(host).lower())
         self.queue.put(str(self))
-
         return self
 
     @staticmethod
-    def _str_rgx(q: str, data: str) -> str | None:
+    def _rgx(q: str, data: str) -> str | None:
         """Parses for values that can only occur once."""
         rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
         match = rgx.search(data)
         return match.group(1) if match else None
 
     @staticmethod
-    def _ns_rgx(q: str, data: str) -> list[str] | None:
+    def _greedy_rgx(q: str, data: str) -> list[str] | None:
         """Parses for nameservers, which the can be multiple of."""
         rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
         match = rgx.findall(data)
@@ -87,6 +86,9 @@ class WhoisData:
         raise errors.InvalidWhoisData("Whois did not return valid data.")
 
     def __str__(self) -> str:
+        status = "\n".join(f" - {s.split()[0]}" for s in self.status)
+        ns = "\n".join(f" - {n}" for n in self.nameservers)
+
         return (
             f"{YELLOW}==========={STOP} {GREEN}WHOIS{STOP} {YELLOW}===========\n{STOP}"
             f"{CYAN}Domain:       {self.domain}\n{STOP}"
@@ -94,8 +96,8 @@ class WhoisData:
             f"{CYAN}Created:      {self.created}\n{STOP}"
             f"{PURPLE}Updated:      {self.updated}\n{STOP}"
             f"{CYAN}Expires:      {self.expires}\n{STOP}"
-            f"{PURPLE}Nameservers:  {', '.join(self.nameservers)}\n{STOP}"
-            f"{CYAN}Status:       {self.status}\n{STOP}"
+            f"{PURPLE}Nameservers:  \n{ns}\n{STOP}"
+            f"{CYAN}Status:\n{status}\n{STOP}"
             f"{YELLOW}============================={STOP}"
         )
 
@@ -118,11 +120,11 @@ class WhoisData:
         }
 
         for k, v in attr_map.items():
-            if v == "name server":
-                setattr(self, k, self._maybe(self._ns_rgx(v, data)))
+            if k in ("nameservers", "status"):
+                setattr(self, k, self._maybe(self._greedy_rgx(v, data)))
 
             else:
-                setattr(self, k, self._maybe(self._str_rgx(v, data)))
+                setattr(self, k, self._maybe(self._rgx(v, data)))
 
 
 @dataclass(slots=True)
