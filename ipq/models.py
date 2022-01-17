@@ -23,12 +23,11 @@
 from __future__ import annotations
 
 import re
-import shutil
 import subprocess
 import typing as t
 from dataclasses import dataclass, field
 
-from ipq import errors
+from ipq import errors, utils
 
 T = t.TypeVar("T", str, list[str])
 
@@ -46,35 +45,27 @@ class WhoisData:
     nameservers: list[str] = field(default_factory=list)
 
     @classmethod
-    def new(cls, domain: str) -> WhoisData:
+    def new(cls, host: str) -> WhoisData:
         """Creates a new `WhoisData` object with the whois command."""
-        if not shutil.which("whois"):
-            raise errors.MissingWhois("ipq requires the `which` command, please install it.")
-
         self = cls()
-        proc = subprocess.run(["whois", domain.lower()], capture_output=True)
-        data = proc.stdout.decode("utf-8")
-        return self._black_magic(data.lower())
+        self._black_magic(self._whois(host).lower())
+
+        return self
 
     @staticmethod
     def _str_rgx(q: str, data: str) -> str | None:
         """Parses for values that can only occur once."""
         rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
+        match = rgx.search(data)
+        return match.group(1) if match else None
 
-        if buf := rgx.search(data):
-            return buf.group(1)
-
-        return None
 
     @staticmethod
     def _ns_rgx(q: str, data: str) -> list[str] | None:
         """Parses for nameservers, which the can be multiple of."""
         rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
-
-        if ns := rgx.findall(data):
-            return [*set(ns)] # prevents duplicate nameservers in the list
-
-        return None
+        match = rgx.findall(data)
+        return [*set(match)] if match else None
 
     @staticmethod
     def _maybe(value: T | None) -> T:
@@ -90,18 +81,23 @@ class WhoisData:
 
     def __str__(self) -> str:
         return (
-            "========== WHOIS ==========\n"
-            f"Domain: {self.domain}\n"
-            f"Registrar: {self.registrar}\n"
-            f"Created: {self.created}\n"
-            f"Updated: {self.updated}\n"
-            f"Expires: {self.expires}\n"
-            f"Status: {self.status}\n"
-            f"Nameservers: {', '.join(self.nameservers)}\n"
-            "==========================="
+            "=========== WHOIS ===========\n"
+            f"Domain:       {self.domain}\n"
+            f"Registrar:    {self.registrar}\n"
+            f"Created:      {self.created}\n"
+            f"Updated:      {self.updated}\n"
+            f"Expires:      {self.expires}\n"
+            f"Nameservers:  {', '.join(self.nameservers)}\n"
+            f"Status:       {self.status}\n"
+            "============================="
         )
 
-    def _black_magic(self, data: str) -> WhoisData:
+    @utils.requires("whois")
+    def _whois(self, host: str) -> str:
+        proc = subprocess.run(["whois", host.lower()], capture_output=True)
+        return proc.stdout.decode("utf-8")
+
+    def _black_magic(self, data: str) -> None:
         """Sets all the data to the appropriate attr on this obj."""
         attr_map: dict[str, str] = {
             "domain": "domain name",
@@ -120,19 +116,78 @@ class WhoisData:
             else:
                 setattr(self, k, self._maybe(self._str_rgx(v, data)))
 
-        return self
-
 
 @dataclass(slots=True)
 class IPData:
     """Represents information about the given IP."""
 
-    ip: str
-    hostname: str
-    city: str
-    region: str
-    country: str
-    loc: str
-    org: str
-    postal: str
-    timezone: str
+    ip: str = ""
+    hostname: str = ""
+    city: str = ""
+    country: str = ""
+    org: str = ""
+    postal: str = ""
+
+    @classmethod
+    def new(cls, host: str) -> IPData:
+        self = cls()
+
+        if utils.DOMAIN_RGX.match(host):
+            self.ip = self._ns_lookup(host, utils.NSLOOKUP_IP_RGX)
+
+        elif utils.IP_RGX.match(host):
+            self.ip = host
+
+        else:
+            raise errors.ShellCommandError(f"{host!r} is not a valid domain or IP address.")
+
+        try:
+            self.hostname = self._ns_lookup(self.ip, utils.NSLOOKUP_HOST_RGX)
+        except errors.ShellCommandError:
+            self.hostname = "Not Found"
+
+        self._red_magic(self.ip)
+        return self
+
+    def __str__(self) -> str:
+        return (
+            "========== IP INFO ==========\n"
+            f"IP:           {self.ip}\n"
+            f"Hostname:     {self.hostname}\n"
+            f"City:         {self.city}\n"
+            f"Country:      {self.country}\n"
+            f"Postal code:  {self.postal}\n"
+            f"Organization: {self.org}\n"
+            "============================="
+        )
+
+    @utils.requires("whois")
+    def _red_magic(self, host: str) -> str:
+        """Sets all the data to the appropriate attr on this obj."""
+        attr_map: dict[str, str] = {
+            "city": "City",
+            "country": "Country",
+            "org": "OrgName",
+            "postal": ".*Postal\\s?Code",
+        }
+
+        proc = subprocess.run(["whois", host], capture_output=True)
+        data = proc.stdout.decode("utf-8")
+
+        for k, v in attr_map.items():
+            rgx = re.compile(f"^{v}:\\s+(.*)$", re.M)
+            match = rgx.search(data)
+            setattr(self, k, match.group(1) if match else "Not Found")
+
+        return ""
+
+    @utils.requires("nslookup")
+    def _ns_lookup(self, host: str, rgx: re.Pattern[str]) -> str:
+        proc = subprocess.run(["nslookup", host.lower()], capture_output=True)
+        data = proc.stdout.decode("utf-8")
+        match = rgx.search(data)
+
+        if not match:
+            raise errors.ShellCommandError(f"Something went wrong with 'nslookup' for {host!r}")
+
+        return match.group(1)

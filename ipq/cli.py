@@ -20,14 +20,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """Command line argument parser."""
 
-import re
-
 import click
 
-from ipq import errors, models, __packagename__, __version__
-
-DOMAIN_RGX = re.compile(r"^((?!-)[\w\d-]{1,63}(?<!-)\.)+[a-zA-Z][\w]{1,5}$")
-IP_RGX = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
+from ipq import errors, models, utils, __packagename__, __version__
 
 
 @click.command(__packagename__)
@@ -37,12 +32,15 @@ IP_RGX = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 @click.option("-w", "--whois", is_flag=True, help="Include WHOIS data in results.")
 def invoke(host: str, whois: bool) -> None:
     """Workhorse function that creates objects and parses CLI args."""
-    dom_match = DOMAIN_RGX.match(host)
-    ip_match = IP_RGX.match(host)
+    domain = utils.DOMAIN_RGX.match(host)
+    ip = utils.IP_RGX.match(host)
 
-    if not dom_match and not ip_match:
+    if not domain and not ip:
         raise errors.InvalidHost(f"{host!r} is not a valid domain or IP address.")
 
-    if whois:
-        _w = models.WhoisData.new(host)
-        print(_w)
+    if ip and whois:
+        raise errors.InvalidHost(f"You must pass a domain as the host for the '-w' flag.")
+
+    ip_data = models.IPData.new(host)
+    whois_data = models.WhoisData.new(host) if whois else None
+    print("\n".join((f"{ip_data}", f"{whois_data or ''}")))

@@ -35,15 +35,23 @@ class IpqError(Exception):
         return f"\033[0;31mError\033[0m: {self.message}"
 
 
-class InvalidWhoisData(IpqError):
+class ShellCommandError(IpqError):
+    """Raised when something goes wrong with a shell command."""
+
+
+class InvalidWhoisData(ShellCommandError):
     """Raised when invalid data is returned from the `whois` command."""
 
 
-class MissingWhois(IpqError):
+class MissingWhois(ShellCommandError):
     """Raised when the `whois` command is not present."""
 
 
-class InvalidHost(IpqError):
+class MissingNSLookup(ShellCommandError):
+    """Raised when the `nslookup` command is not present."""
+
+
+class InvalidHost(ShellCommandError):
     r"""Raised when host does not match domain or IP regex.
 
     -Domain-: `^((?!-)[\w\d-]{1,63}(?<!-)\.)+[a-zA-Z][\w]{1,5}$`

@@ -22,7 +22,7 @@
 
 from __future__ import annotations
 
-__all__ = ["cli", "errors", "models"]
+__all__ = ["cli", "errors", "models", "utils"]
 
 __packagename__ = "ipq"
 __version__ = "0.1.0"
@@ -33,4 +33,4 @@ __url__ = "https://github.com/Jonxslays/ipq"
 __repository__ = __url__
 __license__ = "MIT"
 
-from . import cli, errors, models
+from . import cli, errors, models, utils
