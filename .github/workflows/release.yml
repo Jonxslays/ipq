@@ -25,6 +25,7 @@ jobs:
 
   post-release:
     name: Post release
+    needs: pypi
     runs-on: ubuntu-latest
 
     steps:
