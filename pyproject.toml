@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ipq"
-version = "0.1.1.post0"
+version = "0.2.0"
 description = "A CLI tool for gathering IP and domain name information."
 homepage = "https://github.com/Jonxslays/ipq"
 repository = "https://github.com/Jonxslays/ipq"
@@ -11,8 +11,8 @@ packages = [{include = "ipq"}]
 classifiers = [
     # "Development Status :: 1 - Planning",
     # "Development Status :: 2 - Pre-Alpha",
-    "Development Status :: 3 - Alpha",
-    # "Development Status :: 4 - Beta",
+    # "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     # "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: Developers",
@@ -61,7 +61,7 @@ line-length = 99
 profile = "black"
 
 [tool.len8]
-include = ["ipq", "tests", "noxfile.py"]
+include = ["ipq", "noxfile.py"]
 code-length = 99
 docs-length = 72
 strict = true
