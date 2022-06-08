@@ -77,9 +77,9 @@ class WhoisData:
 
         for m in matches:
             if m.lower() not in (r.lower() for r in result):
-                result.append(m.strip())
+                result.append(m.split()[0].strip())
 
-        return result or None
+        return sorted(list(set(result))) or None
 
     @staticmethod
     def _maybe(value: T | None) -> T:
@@ -90,7 +90,7 @@ class WhoisData:
         elif isinstance(value, str):
             return value or "Not Found"
 
-        # We should *hopefully* never get here
+        # We should *hopefully* never get here, unless its a bad domain
         raise errors.InvalidWhoisData("Whois did not return valid data.")
 
     def __str__(self) -> str:
