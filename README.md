@@ -44,6 +44,9 @@ $ ipq --help
 # Get info on a domain
 $ ipq google.com
 
+# Also works
+$ ipq https://google.com
+
 # Get info on an ip
 $ ipq 8.8.8.8
 
