@@ -72,8 +72,14 @@ class WhoisData:
     def _greedy_rgx(q: str, data: str) -> t.List[str] | None:
         """Parses for nameservers, which the can be multiple of."""
         rgx = re.compile(f"(?i)^\\s*{q}: (.*)$", re.M)
-        match = rgx.findall(data)
-        return [*set(match)] if match else None
+        matches = rgx.findall(data)
+        result: t.List[t.Any] = []
+
+        for m in matches:
+            if m.lower() not in (r.lower() for r in result):
+                result.append(m.strip())
+
+        return result or None
 
     @staticmethod
     def _maybe(value: T | None) -> T:
