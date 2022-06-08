@@ -25,6 +25,7 @@ from __future__ import annotations
 import functools
 import re
 import shutil
+import sys
 import typing as t
 
 from ipq import errors
@@ -76,3 +77,10 @@ class Colors:
     BLUE = "\033[1;34m"
     PURPLE = "\033[1;35m"
     CYAN = "\033[1;36m"
+
+
+if not sys.stdout.isatty():
+    for attr in dir(Colors):
+        if not attr.startswith("_"):
+            # Disable color if not in a TTY
+            setattr(Colors, attr, "")
