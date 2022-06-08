@@ -25,7 +25,7 @@ from __future__ import annotations
 __all__ = ["cli", "errors", "models", "utils"]
 
 __packagename__ = "ipq"
-__version__ = "0.2.0"
+__version__ = "0.2.0.post0"
 __author__ = "Jonxslays"
 __copyright__ = "2022-present Jonxslays"
 __description__ = "A CLI tool for gathering IP and domain name information."
