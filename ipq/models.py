@@ -31,7 +31,7 @@ from queue import Queue
 
 from ipq import errors, utils
 
-T = t.TypeVar("T", str, list[str])
+T = t.TypeVar("T", str, t.List[str])
 CYAN = utils.Colors.CYAN
 STOP = utils.Colors.STOP
 GREEN = utils.Colors.GREEN
@@ -49,28 +49,29 @@ class WhoisData:
     created: str = ""
     updated: str = ""
     expires: str = ""
-    status: list[str] = field(default_factory=list)
-    nameservers: list[str] = field(default_factory=list)
+    status: t.List[str] = field(default_factory=list)
+    nameservers: t.List[str] = field(default_factory=list)
 
     @classmethod
     def new(cls, queue: Queue[str], host: str) -> WhoisData:
         """Creates a new `WhoisData` object with the whois command."""
         self = cls(queue)
-        self._black_magic(self._whois(host).lower())
+        host = ".".join(host.split(".")[-2:])
+        self._black_magic(self._whois(host))
         self.queue.put(str(self))
         return self
 
     @staticmethod
     def _rgx(q: str, data: str) -> str | None:
         """Parses for values that can only occur once."""
-        rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
+        rgx = re.compile(f"(?i)^\\s*{q}: (.*)$", re.M)
         match = rgx.search(data)
         return match.group(1) if match else None
 
     @staticmethod
-    def _greedy_rgx(q: str, data: str) -> list[str] | None:
+    def _greedy_rgx(q: str, data: str) -> t.List[str] | None:
         """Parses for nameservers, which the can be multiple of."""
-        rgx = re.compile(f"^\\s*{q}: (.*)$", re.M)
+        rgx = re.compile(f"(?i)^\\s*{q}: (.*)$", re.M)
         match = rgx.findall(data)
         return [*set(match)] if match else None
 

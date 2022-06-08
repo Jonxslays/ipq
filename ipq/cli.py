@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import typing as t
 from queue import Queue
-from threading import Thread
+from urllib import parse
 
 import click
 
@@ -39,10 +39,14 @@ from ipq import __packagename__, __version__, errors, models, utils
 @click.option("-p", "--ping", is_flag=True, help="Ping the host.")
 def invoke(host: str, whois: bool, ping: bool) -> None:
     """Quickly gather IP and domain name information."""
-    targets: list[t.Type[models.IPData] | t.Type[models.WhoisData]] = [models.IPData]
+    targets: t.List[t.Type[models.IPData] | t.Type[models.WhoisData]] = [models.IPData]
+
     queue: Queue[str] = Queue(2)
-    threads: list[Thread] = []
-    output: list[str] = []
+    output: t.List[str] = []
+
+    parsed = parse.urlparse(host)
+    host = parsed.netloc or parsed.path or host
+
     domain = utils.DOMAIN_RGX.match(host)
     ip = utils.IP_RGX.match(host)
 
@@ -60,13 +64,8 @@ def invoke(host: str, whois: bool, ping: bool) -> None:
     if whois:
         targets.append(models.WhoisData)
 
-    for obj in targets:
-        thread = Thread(target=obj.new, args=(queue, host))
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
+    for target in targets:
+        target.new(queue, host)
 
     while not queue.empty():
         output.append(queue.get())
