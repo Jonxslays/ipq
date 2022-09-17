@@ -39,7 +39,7 @@ PURPLE = utils.Colors.PURPLE
 YELLOW = utils.Colors.YELLOW
 
 
-@dataclass(slots=True)
+@dataclass
 class WhoisData:
     """Represents a domains whois info."""
 
@@ -135,7 +135,7 @@ class WhoisData:
                 setattr(self, k, self._maybe(self._rgx(v, data)))
 
 
-@dataclass(slots=True)
+@dataclass
 class IPData:
     """Represents information about the given IP."""
 
@@ -215,7 +215,7 @@ class IPData:
         return match.group(1)
 
 
-@dataclass(slots=True)
+@dataclass
 class PingData:
     """Data received from pinging the host."""
 
