@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ipq"
-version = "0.2.1"
+version = "0.2.1.post0"
 description = "A CLI tool for gathering IP and domain name information."
 homepage = "https://github.com/Jonxslays/ipq"
 repository = "https://github.com/Jonxslays/ipq"
